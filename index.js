@@ -45,40 +45,42 @@ module.exports = {
      * Augmented to use consola.
      */
 
-    // We must reference this before it's deleted!
-    const resultStatusCode = result.statusCode;
-    const timeDiff = process.hrtime(req._consolaPluginStartTime);
+    if (queryDocumentAst) {
+      // We must reference this before it's deleted!
+      const resultStatusCode = result.statusCode;
+      const timeDiff = process.hrtime(req._consolaPluginStartTime);
 
-    // We setImmediate so that performing the log does not interfere with
-    // returning the result to the user (reduces latency).
-    setImmediate(() => {
-      // Pretty-printing this query is not cheap; it's probably smart not to do
-      // this in production if performance is critical to you.
-      const prettyQuery = graphql
-        .print(queryDocumentAst)
-        .replace(/\s+/g, " ")
-        .trim();
-      const errorCount = (result.errors || []).length;
-      const ms = timeDiff[0] * 1e3 + timeDiff[1] * 1e-6;
+      // We setImmediate so that performing the log does not interfere with
+      // returning the result to the user (reduces latency).
+      setImmediate(() => {
+        // Pretty-printing this query is not cheap; it's probably smart not to do
+        // this in production if performance is critical to you.
+        const prettyQuery = graphql
+          .print(queryDocumentAst)
+          .replace(/\s+/g, " ")
+          .trim();
+        const errorCount = (result.errors || []).length;
+        const ms = timeDiff[0] * 1e3 + timeDiff[1] * 1e-6;
 
-      let message;
-      if (resultStatusCode === 401) {
-        message = chalk.red(`401 authentication error`);
-      } else if (resultStatusCode === 403) {
-        message = chalk.red(`403 forbidden error`);
-      } else {
-        message = chalk[errorCount === 0 ? "green" : "red"](
-          `${errorCount} error(s)`
+        let message;
+        if (resultStatusCode === 401) {
+          message = chalk.red(`401 authentication error`);
+        } else if (resultStatusCode === 403) {
+          message = chalk.red(`403 forbidden error`);
+        } else {
+          message = chalk[errorCount === 0 ? "green" : "red"](
+            `${errorCount} error(s)`
+          );
+        }
+        const consolaMethod =
+          errorCount > 0 || resultStatusCode >= 400 ? "error" : "success";
+        consola[consolaMethod](
+          `${message} ${
+            pgRole != null ? `as ${chalk.magenta(pgRole)} ` : ""
+          }in ${chalk.grey(`${ms.toFixed(2)}ms`)} :: ${prettyQuery}`
         );
-      }
-      const consolaMethod =
-        errorCount > 0 || resultStatusCode >= 400 ? "error" : "success";
-      consola[consolaMethod](
-        `${message} ${
-          pgRole != null ? `as ${chalk.magenta(pgRole)} ` : ""
-        }in ${chalk.grey(`${ms.toFixed(2)}ms`)} :: ${prettyQuery}`
-      );
-    });
+      });
+    }
     return result;
   },
 };
