@@ -1,0 +1,16 @@
+{
+  "name": "postgraphile-log-consola",
+  "version": "1.0.0",
+  "description": "Use nuxt's consola for logging",
+  "main": "index.js",
+  "scripts": {},
+  "author": "Benjie Gillam <code@benjiegillam.com>",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "consola": "^2.4.1"
+  },
+  "files": [
+    "index.js"
+  ]
+}
