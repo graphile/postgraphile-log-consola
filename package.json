@@ -1,6 +1,6 @@
 {
   "name": "postgraphile-log-consola",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Use nuxt's consola for logging",
   "main": "index.js",
   "scripts": {},
